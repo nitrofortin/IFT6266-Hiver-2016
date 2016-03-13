@@ -12,7 +12,7 @@ port = 5555
 
 train = DogsVsCats(('train',), subset=slice(0, 20000))
 
-stream = DataStream.default_stream(
+stream = DataStream(
     train,
     iteration_scheme=ShuffledScheme(train.num_examples, batch_size)
 )

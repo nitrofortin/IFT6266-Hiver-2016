@@ -1,6 +1,6 @@
 import os
 
-# Errors come from conv_sequence.get_dim('output'), it returns None
+# Errors come from conv_sequence.initialize(), conv layers act like NoneType
 print "------------------------ Blocks errors ------------------------"
 os.system("python model_and_train.py")
 # I got

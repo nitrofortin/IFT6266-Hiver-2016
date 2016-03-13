@@ -46,4 +46,4 @@ data_stream = Cast(
 	which_sources = ('image_features',)
 )
 
-# start_server(lol, port=port)
+start_server(data_stream, port=port)

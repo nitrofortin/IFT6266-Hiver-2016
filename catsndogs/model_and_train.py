@@ -29,29 +29,26 @@ from blocks.algorithms import GradientDescent, Scale
 from toolz.itertoolz import interleave
 
 # Features parameters
-pooling_sizes = [2,2]
-conv_sizes = [5, 5]
+pooling_sizes = [(2,2),(2,2)]
+filter_sizes = [(5,5),(5,5)]
 image_shape = (256, 256)
 output_size = 2
 
-filter_sizes = zip(pooling_sizes,pooling_sizes)
-
-# Architecture
 num_channels = 3
-feature_maps = [20, 50]
+num_filters = [20, 50]
 mlp_hiddens = [500]
 conv_step = (1, 1)
-border_mode = 'full'
+border_mode = 'valid'
 
 # Theano variables
 x = tensor.tensor4('image_features')
 y = tensor.lmatrix('targets')
 
 # Conv net
-conv_activation = [Rectifier() for _ in feature_maps]
+conv_activation = [Rectifier() for _ in num_filters]
 mlp_activation = [Rectifier() for _ in mlp_hiddens] + [Softmax().apply]
 
-conv_parameters = zip(filter_sizes, feature_maps)
+conv_parameters = zip(filter_sizes, num_filters)
 
 conv_layers = list(interleave([
 	(Convolutional(
@@ -67,9 +64,9 @@ conv_sequence = ConvolutionalSequence(conv_layers, num_channels, image_size=imag
 conv_sequence.initialize()
 out = Flattener().apply(conv_sequence.apply(x))
 
-top_mlp_dims = [numpy.prod(conv_sequence.get_dim('output'))] + mlp_hiddens + [output_size]
-top_mlp = MLP(mlp_activation, mlp_hiddens + [output_size],weights_init=Uniform(0, 0.2),biases_init=Constant(0.))
-top_mlp.initialize()
+# top_mlp_dims = [numpy.prod(conv_sequence.get_dim('output'))] + mlp_hiddens + [output_size]
+# top_mlp = MLP(mlp_activation, mlp_hiddens + [output_size],weights_init=Uniform(0, 0.2),biases_init=Constant(0.))
+# top_mlp.initialize()
 
 # predict = mlp.apply(out)
 

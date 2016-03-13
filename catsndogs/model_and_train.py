@@ -172,5 +172,5 @@ extensions = [Timing(),
               Printing()]
 
 model = Model(cost)
-main_loop = MainLoop(algorithm,data_stream=train_stream,model=model,extensions=extensions)
+main_loop = MainLoop(algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
 main_loop.run()

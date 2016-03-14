@@ -37,7 +37,7 @@ from toolz.itertoolz import interleave
 pooling_sizes = [(2,2),(2,2)]
 filter_sizes = [(5,5),(5,5)]
 # image_size = (256, 256)
-image_size = (64,64)
+image_size = (128,128)
 output_size = 2
 
 num_channels = 3

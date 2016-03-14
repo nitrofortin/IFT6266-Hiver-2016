@@ -14,7 +14,7 @@ valid = DogsVsCats(('train',), subset=slice(20000, 25000))
 
 stream = DataStream(
     valid,
-    iteration_scheme=ShuffledScheme(train.num_examples, batch_size)
+    iteration_scheme=ShuffledScheme(valid.num_examples, batch_size)
 )
 
 downscale_stream = MinimumImageDimensions(

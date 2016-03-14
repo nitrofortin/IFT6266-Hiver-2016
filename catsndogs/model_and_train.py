@@ -36,7 +36,8 @@ from toolz.itertoolz import interleave
 # Features parameters
 pooling_sizes = [(2,2),(2,2)]
 filter_sizes = [(5,5),(5,5)]
-image_size = (256, 256)
+# image_size = (256, 256)
+image_size = (64,64)
 output_size = 2
 
 num_channels = 3
@@ -82,14 +83,14 @@ error_rate = error.copy(name='error_rate')
 cg = ComputationGraph([cost, error_rate])
 
 
-batch_size = 64
+batch_size = 32
 num_epochs = 60
 save_to = "CatsVsDogs.pkl"
 
 train = DogsVsCats(('train',), subset=slice(0, 20000))
 valid = DogsVsCats(('train',), subset=slice(20000,25000))
 
-train_stream = DataStream.default_stream(
+train_stream = DataStream(
     train,
     iteration_scheme=ShuffledScheme(train.num_examples, batch_size)
 )
@@ -124,7 +125,7 @@ data_train_stream = Cast(
 	which_sources = ('image_features',)
 )
 
-valid_stream = DataStream.default_stream(
+valid_stream = DataStream(
     valid,
     iteration_scheme=ShuffledScheme(valid.num_examples, batch_size)
 )
@@ -180,12 +181,12 @@ extensions = [Timing(),
               Checkpoint(save_to),
               ProgressBar(),
               Printing()]
-# extensions.append(Plot(
-#     'CatsVsDogs',
-#     channels=[['train_error_rate', 'valid_error_rate'],
-#               ['valid_cost', 'valid_error_rate'],
-#               ['train_total_gradient_norm']], after_epoch=True))
+extensions.append(Plot(
+    'CatsVsDogs',
+    channels=[['train_error_rate', 'valid_error_rate'],
+              ['valid_cost', 'valid_error_rate'],
+              ['train_total_gradient_norm']], after_epoch=True))
 
 model = Model(cost)
-main_loop = MainLoop(algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
+main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
 main_loop.run()

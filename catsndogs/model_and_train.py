@@ -81,6 +81,7 @@ predict = top_mlp.apply(out)
 cost = CategoricalCrossEntropy().apply(y.flatten(), predict).copy(name='cost')
 error = MisclassificationRate().apply(y.flatten(), predict)
 error_rate = error.copy(name='error_rate')
+error_rate2 = error.copy(name='error_rate2')
 cg = ComputationGraph([cost, error_rate])
 
 
@@ -170,7 +171,7 @@ algorithm = GradientDescent(cost=cost, parameters=cg.parameters, step_rule=Scale
 extensions = [Timing(),
               FinishAfter(after_n_epochs=num_epochs),
               DataStreamMonitoring(
-                  [cost, error_rate],
+                  [cost, error_rate, error_rate2],
                   data_valid_stream,
                   prefix="valid"),
               TrainingDataMonitoring(
@@ -190,7 +191,7 @@ else
 extensions.append(Plot(
     'CatsVsDogs',
     channels=[['train_error_rate', 'valid_error_rate'],
-              ['valid_cost', 'valid_error_rate'],
+              ['valid_cost', 'valid_error_rate2'],
               ['train_total_gradient_norm']],server_url=host,after_epoch=True))
 
 model = Model(cost)

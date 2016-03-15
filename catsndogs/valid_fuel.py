@@ -6,7 +6,7 @@ from fuel.transformers import Flatten, Cast, ScaleAndShift
 from fuel.server import start_server
 from maxTransformerFBordes import MaximumImageDimensions
 
-image_size = (256,256)
+image_size = (128,128)
 batch_size = 64
 port = 5556
 

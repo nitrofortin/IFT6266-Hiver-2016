@@ -87,82 +87,82 @@ batch_size = 64
 num_epochs = 100
 save_to = "CatsVsDogs.pkl"
 
-# train = DogsVsCats(('train',), subset=slice(0, 20000))
-# valid = DogsVsCats(('train',), subset=slice(20000,25000))
+train = DogsVsCats(('train',), subset=slice(0, 20000))
+valid = DogsVsCats(('train',), subset=slice(20000,25000))
 
-# train_stream = DataStream(
-#     train,
-#     iteration_scheme=ShuffledScheme(train.num_examples, batch_size)
-# )
+train_stream = DataStream(
+    train,
+    iteration_scheme=ShuffledScheme(train.num_examples, batch_size)
+)
 
-# downscale_train_stream = MinimumImageDimensions(
-# 	data_stream = train_stream,
-# 	minimum_shape = image_size, 
-# 	which_sources=('image_features',)
-# )
+downscale_train_stream = MinimumImageDimensions(
+	data_stream = train_stream,
+	minimum_shape = image_size, 
+	which_sources=('image_features',)
+)
 
-# upscale_train_stream = MaximumImageDimensions(
-# 	data_stream = downscale_train_stream, 
-# 	maximum_shape = image_size, 
-# 	which_sources=('image_features',)
-# )
+upscale_train_stream = MaximumImageDimensions(
+	data_stream = downscale_train_stream, 
+	maximum_shape = image_size, 
+	which_sources=('image_features',)
+)
 
-# rotated_train_stream = Random2DRotation(
-# 	data_stream = upscale_train_stream, 
-# 	which_sources=('image_features',)
-# )
+rotated_train_stream = Random2DRotation(
+	data_stream = upscale_train_stream, 
+	which_sources=('image_features',)
+)
 
-# scaled_train_stream = ScaleAndShift(
-# 	data_stream = rotated_train_stream, 
-# 	scale = 1./255, 
-# 	shift = 0, 
-# 	which_sources = ('image_features',)
-# )
+scaled_train_stream = ScaleAndShift(
+	data_stream = rotated_train_stream, 
+	scale = 1./255, 
+	shift = 0, 
+	which_sources = ('image_features',)
+)
 
-# data_train_stream = Cast(
-# 	data_stream = scaled_train_stream, 
-# 	dtype = 'float32', 
-# 	which_sources = ('image_features',)
-# )
+data_train_stream = Cast(
+	data_stream = scaled_train_stream, 
+	dtype = 'float32', 
+	which_sources = ('image_features',)
+)
 
-# valid_stream = DataStream(
-#     valid,
-#     iteration_scheme=ShuffledScheme(valid.num_examples, batch_size)
-# )
+valid_stream = DataStream(
+    valid,
+    iteration_scheme=ShuffledScheme(valid.num_examples, batch_size)
+)
 
-# downscale_valid_stream = MinimumImageDimensions(
-# 	data_stream = valid_stream,
-# 	minimum_shape = image_size, 
-# 	which_sources=('image_features',)
-# )
+downscale_valid_stream = MinimumImageDimensions(
+	data_stream = valid_stream,
+	minimum_shape = image_size, 
+	which_sources=('image_features',)
+)
 
-# upscale_valid_stream = MaximumImageDimensions(
-# 	data_stream = downscale_valid_stream, 
-# 	maximum_shape = image_size, 
-# 	which_sources=('image_features',)
-# )
+upscale_valid_stream = MaximumImageDimensions(
+	data_stream = downscale_valid_stream, 
+	maximum_shape = image_size, 
+	which_sources=('image_features',)
+)
 
-# rotated_valid_stream = Random2DRotation(
-# 	data_stream = upscale_valid_stream, 
-# 	which_sources=('image_features',)
-# )
+rotated_valid_stream = Random2DRotation(
+	data_stream = upscale_valid_stream, 
+	which_sources=('image_features',)
+)
 
-# scaled_valid_stream = ScaleAndShift(
-# 	data_stream = rotated_valid_stream, 
-# 	scale = 1./255, 
-# 	shift = 0, 
-# 	which_sources = ('image_features',)
-# )
+scaled_valid_stream = ScaleAndShift(
+	data_stream = rotated_valid_stream, 
+	scale = 1./255, 
+	shift = 0, 
+	which_sources = ('image_features',)
+)
 
-# data_valid_stream = Cast(
-# 	data_stream = scaled_valid_stream, 
-# 	dtype = 'float32', 
-# 	which_sources = ('image_features',)
-# )
-# data_train_stream = scaled_train_stream
-# data_valid_stream = scaled_valid_stream
-data_valid_stream = ServerDataStream(('image_features','targets'), False, port=5556)
-data_train_stream = ServerDataStream(('image_features','targets'), False, port=5555)
+data_valid_stream = Cast(
+	data_stream = scaled_valid_stream, 
+	dtype = 'float32', 
+	which_sources = ('image_features',)
+)
+data_train_stream = scaled_train_stream
+data_valid_stream = scaled_valid_stream
+# data_valid_stream = ServerDataStream(('image_features','targets'), False, port=5556)
+# data_train_stream = ServerDataStream(('image_features','targets'), False, port=5555)
 
 algorithm = GradientDescent(cost=cost, parameters=cg.parameters, step_rule=Scale(learning_rate=0.1))
 

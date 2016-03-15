@@ -181,7 +181,7 @@ extensions = [Timing(),
               ProgressBar(),
               Printing()]
 
-host = 'localhost:5040'
+host = 'http://localhost:5040'
 extensions.append(Plot(
     'CatsVsDogs',
     channels=[['train_error_rate', 'valid_error_rate'],

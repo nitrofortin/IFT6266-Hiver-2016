@@ -8,7 +8,7 @@ from maxTransformerFBordes import MaximumImageDimensions
 
 image_size = (128,128)
 batch_size = 64
-port = 5555
+port = 4041
 
 train = DogsVsCats(('train',), subset=slice(0, 20000))
 

@@ -161,11 +161,10 @@ data_valid_stream = Cast(
 )
 data_train_stream = scaled_train_stream
 data_valid_stream = scaled_valid_stream
-# data_valid_stream = ServerDataStream(('image_features','targets'), False, port=5556)
-# data_train_stream = ServerDataStream(('image_features','targets'), False, port=5555)
+# data_valid_stream = ServerDataStream(('image_features','targets'), False, port=4040)
+# data_train_stream = ServerDataStream(('image_features','targets'), False, port=4041)
 
 algorithm = GradientDescent(cost=cost, parameters=cg.parameters, step_rule=Scale(learning_rate=0.1))
-
 
 extensions = [Timing(),
               FinishAfter(after_n_epochs=num_epochs),
@@ -181,11 +180,13 @@ extensions = [Timing(),
               Checkpoint(save_to),
               ProgressBar(),
               Printing()]
+
+host = 'localhost:5040'
 extensions.append(Plot(
     'CatsVsDogs',
     channels=[['train_error_rate', 'valid_error_rate'],
               ['valid_cost', 'valid_error_rate'],
-              ['train_total_gradient_norm']], after_epoch=True))
+              ['train_total_gradient_norm']],server_url=host,after_epoch=True))
 
 model = Model(cost)
 main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)

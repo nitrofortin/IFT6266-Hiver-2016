@@ -185,8 +185,8 @@ extensions = [Timing(),
 if laptop
 	host = 'http://localhost:5040'
 else 
-	host = 'http://hades.calculquebec.ca:5040'
-	
+	host = 'http://hades.calculquebec.ca:5050'
+
 extensions.append(Plot(
     'CatsVsDogs',
     channels=[['train_error_rate', 'valid_error_rate'],

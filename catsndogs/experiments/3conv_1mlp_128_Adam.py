@@ -10,7 +10,7 @@ from fuel.schemes import ShuffledScheme
 # Thanks to Florian Bordes for MaximumImageDimensions transformer that allows us to define maximum images size.
 # Code found here: https://github.com/bordesf/IFT6266/blob/master/CatsVsDogs/funtion_resize.py
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
-from maxTransformerFBordes import MaximumImageDimensions
+from fuel_transformers import MaximumImageDimensions
 from fuel.transformers import Flatten, Cast, ScaleAndShift
 from fuel.server import start_server
 # Blocks

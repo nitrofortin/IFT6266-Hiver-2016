@@ -79,7 +79,7 @@ error = MisclassificationRate().apply(y.flatten(), predict)
 error_rate = error.copy(name='error_rate')
 error_rate2 = error.copy(name='error_rate2')
 cg = ComputationGraph([cost, error_rate])
-inputs = VariableFilter(roles=[INPUT])(cg.variables)
+# inputs = VariableFilter(roles=[INPUT])(cg.variables)
 # cg_dropout = apply_dropout(cg,inputs, 0.5)
 
 # Data fuel

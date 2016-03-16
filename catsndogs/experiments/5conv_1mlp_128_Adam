@@ -10,7 +10,7 @@ from fuel.schemes import ShuffledScheme
 # Thanks to Florian Bordes for MaximumImageDimensions transformer that allows us to define maximum images size.
 # Code found here: https://github.com/bordesf/IFT6266/blob/master/CatsVsDogs/funtion_resize.py
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
-from maxTransformerFBordes import MaximumImageDimensions
+from fuel_transformers import MaximumImageDimensions
 from fuel.transformers import Flatten, Cast, ScaleAndShift
 from fuel.server import start_server
 # Blocks
@@ -32,14 +32,14 @@ from toolz.itertoolz import interleave
 
 laptop = False
 # Features parameters
-pooling_sizes = [(2,2),(2,2),(2,2),(2,2),(1,1),(1,1)]
-filter_sizes = [(5,5),(5,5),(5,5),(5,5),(4,4),(4,4)]
+pooling_sizes = [(2,2),(2,2),(2,2),(2,2),(1,1)]
+filter_sizes = [(5,5),(5,5),(5,5),(5,5),(4,4)]
 image_size = (128,128)
 output_size = 2
 
 num_channels = 3
-num_filters = [20, 40, 60, 80, 100, 120]
-mlp_hiddens = [500,500]
+num_filters = [20,40,60,80,100]
+mlp_hiddens = [1000]
 conv_step = (1, 1)
 border_mode = 'valid'
 
@@ -80,6 +80,8 @@ error_rate = error.copy(name='error_rate')
 error_rate2 = error.copy(name='error_rate2')
 cg = ComputationGraph([cost, error_rate])
 
+
+batch_size = 64
 num_epochs = 100
 # save_to = "CatsVsDogs.pkl"
 
@@ -109,7 +111,7 @@ else:
   host = 'http://hades.calculquebec.ca:5050'
 
 extensions.append(Plot(
-    '6conv_2mlp_128',
+    '5conv_1mlp_128',
     channels=[['train_error_rate', 'valid_error_rate'],
               ['valid_cost', 'valid_error_rate2'],
               ['train_total_gradient_norm']],server_url=host,after_epoch=True))

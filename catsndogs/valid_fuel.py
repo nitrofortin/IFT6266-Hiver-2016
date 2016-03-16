@@ -1,10 +1,10 @@
 from fuel.datasets.dogs_vs_cats import DogsVsCats
 from fuel.streams import DataStream
-from fuel.schemes import ShuffledScheme
+from fuel.schemes import ShuffledScheme, SequentialScheme
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
 from fuel.transformers import Flatten, Cast, ScaleAndShift
 from fuel.server import start_server
-from maxTransformerFBordes import MaximumImageDimensions
+from fuel_transformers import MaximumImageDimensions, RandomHorizontalSwap
 
 image_size = (128,128)
 batch_size = 64
@@ -14,7 +14,7 @@ valid = DogsVsCats(('train',), subset=slice(20000, 25000))
 
 stream = DataStream(
     valid,
-    iteration_scheme=ShuffledScheme(valid.num_examples, batch_size)
+    iteration_scheme=SequentialScheme(valid.num_examples, batch_size)
 )
 
 downscale_stream = MinimumImageDimensions(
@@ -29,8 +29,13 @@ upscale_stream = MaximumImageDimensions(
 	which_sources=('image_features',)
 )
 
+swap_stream = RandomHorizontalSwap(
+	data_stream = upscale_stream,
+	which_sources=('image_features',)
+)
+
 rotated_stream = Random2DRotation(
-	data_stream = upscale_stream, 
+	data_stream = swap_stream, 
 	which_sources=('image_features',)
 )
 

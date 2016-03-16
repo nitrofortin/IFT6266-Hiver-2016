@@ -7,8 +7,8 @@ from fuel.server import start_server
 from fuel_transformers import MaximumImageDimensions, RandomHorizontalSwap
 
 
-image_size = (128,128)
-batch_size = 64
+image_size = (64,64)
+batch_size = 32
 port = 4041
 
 train = DogsVsCats(('train',), subset=slice(0, 20000))

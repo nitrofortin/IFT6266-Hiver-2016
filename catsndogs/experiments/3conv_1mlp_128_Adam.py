@@ -1,21 +1,24 @@
-# Conv net LeNet sytle, inspired by https://github.com/mila-udem/blocks-examples/blob/master/mnist_lenet/
-# and Florian Bordes conv net for course project.
-
 # Main libs
 import numpy
 import theano
 from theano import tensor
 # Fuel
 from fuel.streams import ServerDataStream
-
+from fuel.datasets.dogs_vs_cats import DogsVsCats
+from fuel.streams import DataStream
+from fuel.schemes import ShuffledScheme
+# Thanks to Florian Bordes for MaximumImageDimensions transformer that allows us to define maximum images size.
+# Code found here: https://github.com/bordesf/IFT6266/blob/master/CatsVsDogs/funtion_resize.py
+from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
+from maxTransformerFBordes import MaximumImageDimensions
+from fuel.transformers import Flatten, Cast, ScaleAndShift
+from fuel.server import start_server
 # Blocks
 from blocks.bricks import MLP, Rectifier, Softmax
 from blocks.bricks.conv import Convolutional, ConvolutionalSequence, MaxPooling, Flattener
 from blocks.initialization import Constant, Uniform
 from blocks.bricks.cost import CategoricalCrossEntropy, MisclassificationRate
-from blocks.graph import ComputationGraph, apply_dropout
-from blocks.filter import VariableFilter
-from blocks.roles import INPUT
+from blocks.graph import ComputationGraph
 from blocks.main_loop import MainLoop
 from blocks.model import Model
 from blocks.algorithms import GradientDescent, Scale, Adam
@@ -27,18 +30,15 @@ from blocks_extras.extensions.plot import Plot
 # Some tools
 from toolz.itertoolz import interleave
 
-laptop = True
+laptop = False
 # Features parameters
-pooling_sizes = [(2,2),(2,2)]
-filter_sizes = [(5,5),(5,5)]
-
+pooling_sizes = [(2,2),(2,2),(2,2)]
+filter_sizes = [(5,5),(5,5),(5,5)]
 image_size = (128,128)
 output_size = 2
-num_epochs = 10
-save_to = 'lol.pkl'
 
 num_channels = 3
-num_filters = [20, 50]
+num_filters = [20, 50, 80]
 mlp_hiddens = [1000]
 conv_step = (1, 1)
 border_mode = 'valid'
@@ -47,7 +47,7 @@ border_mode = 'valid'
 x = tensor.tensor4('image_features')
 y = tensor.lmatrix('targets')
 
-# Conv net model
+# Conv net
 conv_activation = [Rectifier() for _ in num_filters]
 mlp_activation = [Rectifier() for _ in mlp_hiddens] + [Softmax()]
 
@@ -79,15 +79,15 @@ error = MisclassificationRate().apply(y.flatten(), predict)
 error_rate = error.copy(name='error_rate')
 error_rate2 = error.copy(name='error_rate2')
 cg = ComputationGraph([cost, error_rate])
-inputs = VariableFilter(roles=[INPUT])(cg.variables)
-# cg_dropout = apply_dropout(cg,inputs, 0.5)
 
-# Data fuel
+
+batch_size = 64
+num_epochs = 100
+# save_to = "CatsVsDogs.pkl"
+
 data_valid_stream = ServerDataStream(('image_features','targets'), False, port=4040)
 data_train_stream = ServerDataStream(('image_features','targets'), False, port=4041)
 
-
-# Blocks main_loop
 algorithm = GradientDescent(cost=cost, parameters=cg.parameters, step_rule=Adam())
 
 extensions = [Timing(),
@@ -101,17 +101,17 @@ extensions = [Timing(),
                    aggregation.mean(algorithm.total_gradient_norm)],
                   prefix="train",
                   after_epoch=True),
-              Checkpoint(save_to),
+              # Checkpoint(save_to),
               ProgressBar(),
               Printing()]
 
 if laptop:
 	host = 'http://localhost:5040'
-else: 
+else:
 	host = 'http://hades.calculquebec.ca:5050'
 
 extensions.append(Plot(
-    'CatsVsDogs',
+    '3conv_1mlp_128',
     channels=[['train_error_rate', 'valid_error_rate'],
               ['valid_cost', 'valid_error_rate2'],
               ['train_total_gradient_norm']],server_url=host,after_epoch=True))
@@ -119,5 +119,3 @@ extensions.append(Plot(
 model = Model(cost)
 main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
 main_loop.run()
-
-

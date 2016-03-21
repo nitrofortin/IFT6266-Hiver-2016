@@ -1,8 +1,8 @@
-## Cats Vs. Dogs project
+# Cats Vs. Dogs project
 
 Inspired by the famous Kaggle competition, the purpose of this project is to build a neural network that performs classification task on cats and dogs images. 
 
-## Experiments
+# Experiments
 
 Under experiments/ folder, one can find specific network structures that have been explored. 
 
@@ -18,7 +18,7 @@ Djork-Arné Clevert, Thomas Unterthiner, Sepp Hochreiter, "[Fast and Accurate De
 
 Xavier Glorot, Yoshua Bengio, "[Understanding the difficulty of training deep feedforward neural networks](http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf)", International conference on artificial intelligence and statistics, 2010.
 
-## Blocks and Fuel deep learning frameworks
+# Blocks and Fuel deep learning frameworks
 
 Bart van Merriënboer, Dzmitry Bahdanau, Vincent Dumoulin, Dmitriy Serdyuk, David Warde-Farley, Jan Chorowski, and Yoshua Bengio, "[Blocks and Fuel: Frameworks for deep learning](http://arxiv.org/abs/1506.00619)", arXiv preprint arXiv:1506.00619 [cs.LG], 2015.
 

@@ -29,18 +29,18 @@ upscale_stream = MaximumImageDimensions(
 	which_sources=('image_features',)
 )
 
-swap_stream = RandomHorizontalSwap(
-	data_stream = upscale_stream,
-	which_sources=('image_features',)
-)
+# swap_stream = RandomHorizontalSwap(
+# 	data_stream = upscale_stream,
+# 	which_sources=('image_features',)
+# )
 
-rotated_stream = Random2DRotation(
-	data_stream = swap_stream, 
-	which_sources=('image_features',)
-)
+# rotated_stream = Random2DRotation(
+# 	data_stream = swap_stream, 
+# 	which_sources=('image_features',)
+# )
 
 scaled_stream = ScaleAndShift(
-	data_stream = rotated_stream, 
+	data_stream = upscale_stream, 
 	scale = 1./255, 
 	shift = 0, 
 	which_sources = ('image_features',)

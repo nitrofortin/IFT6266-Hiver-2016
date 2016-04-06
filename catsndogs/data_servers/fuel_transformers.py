@@ -217,7 +217,3 @@ class RandomElasticTransform(SourcewiseTransformer, ExpectsAxisLabels):
                 example = im_dis
         return example
 
-
-
-
-

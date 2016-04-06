@@ -19,6 +19,7 @@ from scipy.signal import convolve2d
 from random import randint
 
 # elastic transform function for elastic warp purpose (RandomElasticTransform Fuel transformer)
+# from erniejunior/elastic_transform.py @ github
 def elastic_transform(image, alpha, sigma, random_state=None):
     """Elastic deformation of images as described in [Simard2003]_.
     .. [Simard2003] Simard, Steinkraus and Platt, "Best Practices for

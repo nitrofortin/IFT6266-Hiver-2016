@@ -8,7 +8,7 @@ from fuel_transformers import MaximumImageDimensions, RandomHorizontalSwap
 
 image_size = (64,64)
 batch_size = 32
-port = 4040
+port = 3040
 
 valid = DogsVsCats(('train',), subset=slice(20000, 25000))
 

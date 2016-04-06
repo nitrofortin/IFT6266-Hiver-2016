@@ -14,6 +14,33 @@ except ImportError:
 from fuel.transformers import ExpectsAxisLabels, SourcewiseTransformer
 from fuel import config
 
+import math
+from scipy.signal import convolve2d
+from random import randint
+
+# elastic transform function for elastic warp purpose (RandomElasticTransform Fuel transformer)
+def elastic_transform(image, alpha, sigma, random_state=None):
+    """Elastic deformation of images as described in [Simard2003]_.
+    .. [Simard2003] Simard, Steinkraus and Platt, "Best Practices for
+       Convolutional Neural Networks applied to Visual Document Analysis", in
+       Proc. of the International Conference on Document Analysis and
+       Recognition, 2003.
+    """
+    if random_state is None:
+        random_state = np.random.RandomState(None)
+
+    shape = image.shape
+    dx = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
+    dy = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
+    dz = np.zeros_like(dx)
+
+    x, y, z = np.meshgrid(np.arange(shape[0]), np.arange(shape[1]), np.arange(shape[2]))
+    print x.shape
+    indices = np.reshape(y+dy, (-1, 1)), np.reshape(x+dx, (-1, 1)), np.reshape(z, (-1, 1))
+
+    distored_image = map_coordinates(image, indices, order=1, mode='reflect')
+    return distored_image.reshape(image.shape)
+
 
 # Thanks to Florian Bordes for MaximumImageDimensions
 class MaximumImageDimensions(SourcewiseTransformer, ExpectsAxisLabels):
@@ -134,3 +161,62 @@ class RandomHorizontalSwap(SourcewiseTransformer, ExpectsAxisLabels):
             else:
                 example = im
         return example
+
+class RandomElasticTransform(SourcewiseTransformer, ExpectsAxisLabels):
+    """Perform some elastic transformation on images randomly.
+    Parameters
+    ----------
+    data_stream : instance of :class:`AbstractDataStream`
+        The data stream to wrap.
+    Notes
+    -----
+    This transformer expects stream sources returning individual images,
+    represented as 2- or 3-dimensional arrays, or lists of the same.
+    The format of the stream is unaltered.
+    """
+    def __init__(self, data_stream, **kwargs):
+        self.rng = kwargs.pop('rng', None)
+        self.warned_axis_labels = False
+        if self.rng is None:
+            self.rng = numpy.random.RandomState(config.default_seed)
+        kwargs.setdefault('produces_examples', data_stream.produces_examples)
+        kwargs.setdefault('axis_labels', data_stream.axis_labels)
+        super(RandomElasticTransform, self).__init__(data_stream, **kwargs)
+
+    def transform_source_batch(self, batch, source_name):
+        self.verify_axis_labels(('batch', 'channel', 'height', 'width'),
+                self.data_stream.axis_labels[source_name],
+                source_name)
+        return [self._example_transform(im, source_name) for im in batch]
+
+    def transform_source_example(self, example, source_name):
+        self.verify_axis_labels(('channel', 'height', 'width'),
+                self.data_stream.axis_labels[source_name],
+                source_name)
+        return self._example_transform(example, source_name)
+
+    def _example_transform(self, example, _):
+        if example.ndim > 3 or example.ndim < 2:
+            raise NotImplementedError
+        warp = numpy.random.randint(0,2)
+        if warp:
+            dt = example.dtype
+            # If we're dealing with a colour image, swap around the axes
+            # to be in the format that PIL needs.
+            if example.ndim == 3:
+                im = example.transpose(1, 2, 0)
+            else:
+                im = example
+            im_dis = elastic_transform(im,alpha,sigma)
+            im_dis = numpy.array(im_dis).astype(dt)
+            # If necessary, undo the axis swap from earlier.
+            if im.ndim == 3:
+                example = im_dis.transpose(2, 0, 1)
+            else:
+                example = im_dis
+        return example
+
+
+
+
+

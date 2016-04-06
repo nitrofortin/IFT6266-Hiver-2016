@@ -35,14 +35,15 @@ from toolz.itertoolz import interleave
 
 laptop = True
 # Features parameters
+conv_steps = [(4,4),(1,1),(1,1),(1,1),(1,1)]
 pooling_sizes = [(2,2),(2,2),(1,1),(1,1),(2,2)]
 filter_sizes = [(11,11),(5,5),(3,3),(3,3),(3,3)]
-image_size = (231,231)
+image_size = (256,256)
 output_size = 2
 num_epochs = 500
 num_channels = 3
-num_filters = [96,256,512,1024,1024]
-mlp_hiddens = [3072,4096]
+num_filters = [48,128,192,192,128]
+mlp_hiddens = [1000,1000]
 conv_step = (1, 1)
 border_mode = 'valid'
 
@@ -54,7 +55,7 @@ y = tensor.lmatrix('targets')
 conv_activation = [Rectifier() for _ in num_filters]
 mlp_activation = [Rectifier() for _ in mlp_hiddens] + [Softmax()]
 
-conv_parameters = zip(filter_sizes, num_filters)
+conv_parameters = zip(conv_steps,filter_sizes, num_filters)
 sbn = SpatialBatchNormalization()
 conv_layers = list(interleave([
   (Convolutional(
@@ -62,7 +63,7 @@ conv_layers = list(interleave([
   num_filters=num_filter,
   step=conv_step,
   border_mode=border_mode,
-  name='conv_{}'.format(i)) for i, (filter_size, num_filter) in enumerate(conv_parameters)),
+  name='conv_{}'.format(i)) for i, (conv_step,filter_size, num_filter) in enumerate(conv_parameters)),
   conv_activation,
   (MaxPooling(size, name='pool_{}'.format(i)) for i, size in enumerate(pooling_sizes))]))
 
@@ -113,11 +114,11 @@ if laptop:
 else:
   host = 'http://hades.calculquebec.ca:5050'
 
-extensions.append(Plot(
-    'CatsVsDogs',
-    channels=[['train_error_rate', 'valid_error_rate'],
-              ['valid_cost', 'valid_error_rate2'],
-              ['train_total_gradient_norm']],server_url=host,after_epoch=True))
+#extensions.append(Plot(
+#    'CatsVsDogs',
+#    channels=[['train_error_rate', 'valid_error_rate'],
+#              ['valid_cost', 'valid_error_rate2'],
+#              ['train_total_gradient_norm']],server_url=host,after_epoch=True))
 model = Model(cost)
-main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
-main_loop.run()
+#main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
+#main_loop.run()

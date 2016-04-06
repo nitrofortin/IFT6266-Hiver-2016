@@ -39,8 +39,8 @@ from glorotinit import GlorotInitialization
 
 laptop = True
 # Features parameters
-pooling_sizes = [(2,2),(2,2),(2,2),(2,2),(2,2),(2,2)]
-filter_sizes = [(5,5),(5,5),(5,5),(5,5),(5,5),(4,4)]
+pooling_sizes = [(2,2),(2,2),(2,2),(2,2),(2,2),(1,1)]
+filter_sizes = [(5,5),(5,5),(5,5),(5,5),(4,4),(4,4)]
 image_size = (256,256)
 output_size = 2
 #learning_rate = 0.05
@@ -78,7 +78,7 @@ for i, (filter_size,num_filter,pooling_size) in enumerate(conv_parameters):
   conv_layers.append(MaxPooling(pooling_size, name='pool_{}'.format(i)))
 
 conv_layers = [sbn] + conv_layers
-conv_sequence = ConvolutionalSequence(conv_layers, num_channels, image_size=image_size,weights_init=GlorotInitialization(), biases_init=Constant(0.))
+conv_sequence = ConvolutionalSequence(conv_layers, num_channels, image_size=image_size,weights_init=Uniform(width=0.2), biases_init=Constant(0.))
 conv_sequence.initialize()
 out = Flattener().apply(conv_sequence.apply(x))
 
@@ -93,7 +93,7 @@ error = MisclassificationRate().apply(y.flatten(), predict)
 error_rate = error.copy(name='error_rate')
 error_rate2 = error.copy(name='error_rate2')
 cg = ComputationGraph([cost, error_rate])
-# in
+inputs = VariableFilter(roles=[INPUT])(cg.variables)
 # cg_dropout = apply_dropout(cg,inputs, 0.5)
 
 # Data fuel

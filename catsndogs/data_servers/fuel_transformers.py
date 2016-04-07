@@ -17,10 +17,12 @@ from fuel import config
 import math
 from scipy.signal import convolve2d
 from random import randint
+from scipy.ndimage.interpolation import map_coordinates
+from scipy.ndimage.filters import gaussian_filter
 
 # elastic transform function for elastic warp purpose (RandomElasticTransform Fuel transformer)
 # from erniejunior/elastic_transform.py @ github
-def elastic_transform(image, alpha, sigma, random_state=None):
+def elastic_transform(image, alpha=1000, sigma=10, random_state=None):
     """Elastic deformation of images as described in [Simard2003]_.
     .. [Simard2003] Simard, Steinkraus and Platt, "Best Practices for
        Convolutional Neural Networks applied to Visual Document Analysis", in
@@ -28,16 +30,16 @@ def elastic_transform(image, alpha, sigma, random_state=None):
        Recognition, 2003.
     """
     if random_state is None:
-        random_state = np.random.RandomState(None)
+        random_state = numpy.random.RandomState(None)
 
     shape = image.shape
     dx = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
     dy = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
-    dz = np.zeros_like(dx)
+    dz = numpy.zeros_like(dx)
 
-    x, y, z = np.meshgrid(np.arange(shape[0]), np.arange(shape[1]), np.arange(shape[2]))
+    x, y, z = numpy.meshgrid(numpy.arange(shape[0]), numpy.arange(shape[1]), numpy.arange(shape[2]))
     print x.shape
-    indices = np.reshape(y+dy, (-1, 1)), np.reshape(x+dx, (-1, 1)), np.reshape(z, (-1, 1))
+    indices = numpy.reshape(y+dy, (-1, 1)), numpy.reshape(x+dx, (-1, 1)), numpy.reshape(z, (-1, 1))
 
     distored_image = map_coordinates(image, indices, order=1, mode='reflect')
     return distored_image.reshape(image.shape)
@@ -208,7 +210,7 @@ class RandomElasticTransform(SourcewiseTransformer, ExpectsAxisLabels):
                 im = example.transpose(1, 2, 0)
             else:
                 im = example
-            im_dis = elastic_transform(im,alpha,sigma)
+            im_dis = elastic_transform(im,1000,10)
             im_dis = numpy.array(im_dis).astype(dt)
             # If necessary, undo the axis swap from earlier.
             if im.ndim == 3:

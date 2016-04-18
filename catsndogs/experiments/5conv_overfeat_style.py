@@ -9,7 +9,6 @@ from fuel.streams import ServerDataStream
 from fuel.datasets.dogs_vs_cats import DogsVsCats
 from fuel.streams import DataStream
 from fuel.schemes import ShuffledScheme
-# Thanks to Florian Bordes for MaximumImageDimensions transformer that allows us to define maximum images size.
 # Code found here: https://github.com/bordesf/IFT6266/blob/master/CatsVsDogs/funtion_resize.py
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
 from fuel_transformers import MaximumImageDimensions
@@ -114,11 +113,11 @@ if laptop:
 else:
   host = 'http://hades.calculquebec.ca:5050'
 
-#extensions.append(Plot(
-#    'CatsVsDogs',
-#    channels=[['train_error_rate', 'valid_error_rate'],
-#              ['valid_cost', 'valid_error_rate2'],
-#              ['train_total_gradient_norm']],server_url=host,after_epoch=True))
+extensions.append(Plot(
+   'CatsVsDogs',
+   channels=[['train_error_rate', 'valid_error_rate'],
+             ['valid_cost', 'valid_error_rate2'],
+             ['train_total_gradient_norm']],server_url=host,after_epoch=True))
 model = Model(cost)
-#main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
-#main_loop.run()
+main_loop = MainLoop(algorithm=algorithm,data_stream=data_train_stream,model=model,extensions=extensions)
+main_loop.run()

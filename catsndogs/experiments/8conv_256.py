@@ -7,7 +7,6 @@ from fuel.streams import ServerDataStream
 from fuel.datasets.dogs_vs_cats import DogsVsCats
 from fuel.streams import DataStream
 from fuel.schemes import ShuffledScheme
-# Thanks to Florian Bordes for MaximumImageDimensions transformer that allows us to define maximum images size.
 # Code found here: https://github.com/bordesf/IFT6266/blob/master/CatsVsDogs/funtion_resize.py
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
 from fuel_transformers import MaximumImageDimensions

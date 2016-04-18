@@ -22,7 +22,7 @@ from blocks.roles import INPUT
 from blocks.main_loop import MainLoop
 from blocks.model import Model
 from blocks.algorithms import GradientDescent, Scale, Adam
-from blocks.extensions.saveload import Checkpoint
+from blocks.extensions.saveload import Checkpoint, Load
 from blocks.extensions.monitoring import DataStreamMonitoring, TrainingDataMonitoring
 from blocks.monitoring import aggregation
 from blocks.extensions import FinishAfter, Timing, Printing, ProgressBar
@@ -36,15 +36,15 @@ from glorotinit import GlorotInitialization
 laptop = False
 # Features parameters
 
-pooling_sizes = [(2,2),(2,2),(2,2),(2,2),(2,2)]
-filter_sizes = [(5,5),(5,5),(5,5),(5,5),(4,4)]
-image_size = (128,128)
+pooling_sizes = [(2,2),(2,2),(2,2),(2,2),(2,2),(1,1)]
+filter_sizes = [(5,5),(5,5),(5,5),(5,5),(4,4),(4,4)]
+image_size = (256,256)
 output_size = 2
-num_epochs = 500
+num_epochs = 250
 learning_rate = 0.01
 num_channels = 3
-num_filters = [30,50,70,90,110]
-mlp_hiddens = [1000,1000]
+num_filters = [30,50,70,90,110,130]
+mlp_hiddens = [1000,1000,1000]
 conv_step = (1, 1)
 border_mode = 'valid'
 
@@ -100,7 +100,8 @@ data_train_stream = ServerDataStream(('image_features','targets'), False, port=3
 # Blocks main_loop
 #algorithm = GradientDescent(cost=cost, parameters=cg_dropout.parameters, step_rule=Adam())
 algorithm = GradientDescent(cost=cost, parameters=cg_dropout.parameters, step_rule=Scale(learning_rate=learning_rate))
-save_to = 'Glorot_6conv_3full_bn_warp.pkl'
+save_to = 'Glorot_6conv_3full_bn_warp_rare2.pkl'
+load_from = 'Glorot_6conv_3full_bn_warp_rare.pkl'
 extensions = [Timing(),
               FinishAfter(after_n_epochs=num_epochs),
               DataStreamMonitoring(
@@ -111,7 +112,7 @@ extensions = [Timing(),
                   [cost, error_rate,
                    aggregation.mean(algorithm.total_gradient_norm)],
                   prefix="train",
-                  after_epoch=True),
+                  after_epoch=True), Load(load_from),
              Checkpoint(save_to),
               ProgressBar(),
               Printing()]
@@ -122,7 +123,7 @@ else:
   host = 'http://hades.calculquebec.ca:5050'
 
 extensions.append(Plot(
-    '6conv_3full_ReLU_bn_Glorot_Adam_warp',
+    '6conv_3full_ReLU_bn_Glorot_warped_long',
     channels=[['train_error_rate', 'valid_error_rate'],
               ['valid_cost', 'valid_error_rate2'],
               ['train_total_gradient_norm']],server_url=host,after_epoch=True))
@@ -175,7 +176,7 @@ test_x =tensor.tensor4('image_features')
 predict_function = theano.function(inputs=[test_x], outputs=top_mlp.apply(Flattener().apply(conv_sequence.apply(test_x))))
 
 import csv
-csvfile = csv.writer(open("test_pred_9_warp.csv",'wb'))
+csvfile = csv.writer(open("test_pred_9_warp_long.csv",'wb'))
 for i,test_image in enumerate(data_test_stream.get_epoch_iterator()):
     prediction = predict_function(test_image[0])[0]
     isadog = numpy.argmax(prediction)

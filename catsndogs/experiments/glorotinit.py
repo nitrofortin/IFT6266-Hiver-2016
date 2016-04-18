@@ -18,8 +18,8 @@ class GlorotInitialization(NdarrayInitialization):
         if len(shape) == 2:
             input_size, output_size = shape
             high = numpy.sqrt(6) / numpy.sqrt(input_size + output_size)
-        elif len(shape) == 4:
-            output_size, input_size, chan_x, chan_y = shape
-            high = numpy.sqrt(6) / numpy.sqrt(input_size + output_size + chan_x + chan_y)
+        # elif len(shape) == 4:
+        #     output_size, input_size, chan_x, chan_y = shape
+        #     high = numpy.sqrt(6) / numpy.sqrt(input_size + output_size + chan_x + chan_y)
         m = rng.uniform(-high, high, size=shape)
         return m.astype(theano.config.float32)

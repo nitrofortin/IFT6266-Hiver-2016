@@ -4,10 +4,10 @@ from fuel.schemes import ShuffledScheme
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
 from fuel.transformers import Flatten, Cast, ScaleAndShift
 from fuel.server import start_server
-from fuel_transformers import MaximumImageDimensions, RandomHorizontalSwap, RandomElasticTransform
+from fuel_transformers import RandomElasticTransform, MaximumImageDimensions, RandomHorizontalSwap
 
 
-image_size = (64,64)
+image_size = (256,256)
 batch_size = 32
 port = 3041
 
@@ -17,7 +17,6 @@ stream = DataStream(
     train,
     iteration_scheme=ShuffledScheme(train.num_examples, batch_size)
 )
-
 
 downscale_stream = MinimumImageDimensions(
 	data_stream = stream,
@@ -31,13 +30,13 @@ upscale_stream = MaximumImageDimensions(
 	which_sources=('image_features',)
 )
 
-elastic_stream = RandomElasticTransform(
+warped_stream = RandomElasticTransform(
 	data_stream = upscale_stream,
-	which_sources = ('image_features')
+	which_sources=('image_features',)
 )
 
 swap_stream = RandomHorizontalSwap(
-	data_stream = elastic_stream,
+	data_stream = warped_stream,
 	which_sources=('image_features',)
 )
 
@@ -59,4 +58,4 @@ data_stream = Cast(
 	which_sources = ('image_features',)
 )
 
-# start_server(data_stream, port=port)
+start_server(data_stream, port=port)

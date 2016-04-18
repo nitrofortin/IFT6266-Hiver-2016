@@ -7,8 +7,6 @@ from fuel.streams import ServerDataStream
 from fuel.datasets.dogs_vs_cats import DogsVsCats
 from fuel.streams import DataStream
 from fuel.schemes import ShuffledScheme
-# Thanks to Florian Bordes for MaximumImageDimensions transformer that allows us to define maximum images size.
-# Code found here: https://github.com/bordesf/IFT6266/blob/master/CatsVsDogs/funtion_resize.py
 from fuel.transformers.image import RandomFixedSizeCrop, MinimumImageDimensions, Random2DRotation
 from fuel_transformers import MaximumImageDimensions
 from fuel.transformers import Flatten, Cast, ScaleAndShift
@@ -51,8 +49,8 @@ x = tensor.tensor4('image_features')
 y = tensor.lmatrix('targets')
 
 # Conv net model
-conv_activation = [ELU() for _ in num_filters]
-mlp_activation = [ELU() for _ in mlp_hiddens] + [Softmax()]
+conv_activation = [Rectifier() for _ in num_filters]
+mlp_activation = [Rectifier() for _ in mlp_hiddens] + [Softmax()]
 
 # conv_parameters = zip(filter_sizes, num_filters)
 sbn = SpatialBatchNormalization()
@@ -73,12 +71,12 @@ conv_sequence.initialize()
 out = Flattener().apply(conv_sequence.apply(x))
 
 top_mlp_dims = [numpy.prod(conv_sequence.get_dim('output'))] + mlp_hiddens + [output_size]
-top_mlp = MLP(mlp_activation, top_mlp_dims,weights_init=GlorotInitialization(),biases_init=Constant(0.))
+top_mlp = MLP(mlp_activation, top_mlp_dims,weights_init=Uniform(0.1),biases_init=Constant(0.))
 top_mlp.initialize()
 
 predict = top_mlp.apply(out)
 
-cost = CategoricalCrossEntropy().apply(y.flatten(), predict).copy(name='cost')
+cost = CategoricalCrossEfntropy().apply(y.flatten(), predict).copy(name='cost')
 error = MisclassificationRate().apply(y.flatten(), predict)
 error_rate = error.copy(name='error_rate')
 error_rate2 = error.copy(name='error_rate2')
